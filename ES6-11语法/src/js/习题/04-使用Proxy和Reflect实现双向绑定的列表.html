@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>使用Proxy与Reflect实现双向绑定的列表</title>
+	</head>
+	<body>
+		<div id="app">
+			<h2>ToDo List</h2>
+			<input id="input" type="text" />
+			<button id="btn">Add</button>
+			<div>
+				双向绑定：
+				<span id="text"></span>
+			</div>
+			<ul id="list"></ul>
+		</div>
+	</body>
+	<script>
+		const $inputEl = document.getElementById('input');
+		const $btnEl = document.getElementById('btn');
+		const $textEl = document.getElementById('text');
+		const $listEl = document.getElementById('list');
+
+		const proxy = new Proxy(
+			{},
+			{
+				get(target, key) {
+					return Reflect.get(target, key);
+				},
+				set(target, key, value) {
+					if (key === 'text') {
+						$textEl.innerHTML = value;
+					}
+					return Reflect.set(target, key, value);
+				},
+			}
+		);
+
+		$inputEl.addEventListener(
+			'keyup',
+			(e) => {
+				proxy.text = e.target.value;
+			},
+			false
+		);
+		$btnEl.addEventListener(
+			'click',
+			(e) => {
+				const li = document.createElement('li');
+				li.innerHTML = $textEl.innerText;
+				$listEl.appendChild(li);
+				$inputEl.value = '';
+				$textEl.value = '';
+			},
+			false
+		);
+	</script>
+</html>
